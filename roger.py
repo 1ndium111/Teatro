@@ -1,11 +1,304 @@
-############################ AREA 1 - IMPORTAÇÃO
 import tkinter as tk
+from tkinter import messagebox
 from PIL import Image, ImageTk
 import psycopg
-############################ AREA 2 - FUNÇÕES
 
+DB_CONFIG = {
+     "dbname": "cinema",
+     "user": "postgres",
+     "password": "root",
+     "host": "localhost",
+     "port": "5432"
+}
+
+nome = []
+
+def criar_botoes_sala1():
+    # Remove todos os widgets (botões) existentes dentro do frame_assentos para evitar duplicação
+    for widget in frame_assentos.winfo_children():
+        widget.destroy()
+        
+    # Busca o status mais atualizado do banco de dados
+    global assentos_no_banco1
+    assentos_no_banco1 = buscar_assentos_ocupados_sala1()
+
+    filas = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
+    colunas = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+
+    for f_idx in range(len(filas)):
+        fila = filas[f_idx]
+        for c_idx in range(len(colunas)):
+            coluna = colunas[c_idx]
+            nome_assento1 = f"{fila}{coluna}"
+            esta_ocupado1 = assentos_no_banco1.get(nome_assento1)
+            
+            if esta_ocupado1:
+                cor_fundo = '#FF0000'  # Vermelho (Ocupado)
+            else:
+                cor_fundo = '#2FA572'  # Verde (Disponível)
+                
+            cor_texto = '#FFFFFF'
+            
+            b1 = tk.Button(frame_assentos, text=nome_assento1, font=("Arial", 8, "bold"), bg=cor_fundo, fg=cor_texto, state="normal")
+            b1.config(command=lambda b=b1: alternar_assento(b))
+            b1.grid(row=f_idx + 1, column=c_idx, padx=4, pady=4)
+
+def criar_botoes_sala2():
+    # Remove todos os widgets (botões) existentes dentro do frame_assentos para evitar duplicação
+    for widget in frame_assentos2.winfo_children():
+        widget.destroy()
+        
+    # Busca o status mais atualizado do banco de dados
+    global assentos_no_banco2
+    assentos_no_banco2 = buscar_assentos_ocupados_sala2()
+
+    filas2 = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
+    colunas2 = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+
+    for f_idx2 in range(len(filas2)):
+        fila2 = filas2[f_idx2]
+        for c_idx2 in range(len(colunas2)):
+            coluna2 = colunas2[c_idx2]
+            nome_assento2 = f"{fila2}{coluna2}"
+            esta_ocupado2 = assentos_no_banco2.get(nome_assento2)
+            
+            if esta_ocupado2:
+                cor_fundo = '#FF0000'  # Vermelho (Ocupado)
+            else:
+                cor_fundo = '#2FA572'  # Verde (Disponível)
+                
+            cor_texto = '#FFFFFF'
+            
+            b2 = tk.Button(frame_assentos2, text=nome_assento2, font=("Arial", 8, "bold"), bg=cor_fundo, fg=cor_texto, state="normal")
+            b2.config(command=lambda b=b2: alternar_assento(b))
+            b2.grid(row=f_idx2 + 1, column=c_idx2, padx=4, pady=4)
+
+def criar_botoes_sala3():
+    # Remove todos os widgets (botões) existentes dentro do frame_assentos para evitar duplicação
+    for widget in frame_assentos3.winfo_children():
+        widget.destroy()
+        
+    # Busca o status mais atualizado do banco de dados
+    global assentos_no_banco3
+    assentos_no_banco3 = buscar_assentos_ocupados_sala3()
+
+    filas3 = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
+    colunas3 = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+
+    for f_idx3 in range(len(filas3)):
+        fila3 = filas3[f_idx3]
+        for c_idx3 in range(len(colunas3)):
+            coluna3 = colunas3[c_idx3]
+            nome_assento3 = f"{fila3}{coluna3}"
+            esta_ocupado3 = assentos_no_banco3.get(nome_assento3)
+            
+            if esta_ocupado3:
+                cor_fundo = '#FF0000'  # Vermelho (Ocupado)
+            else:
+                cor_fundo = '#2FA572'  # Verde (Disponível)
+                
+            cor_texto = '#FFFFFF'
+            
+            b3 = tk.Button(frame_assentos3, text=nome_assento3, font=("Arial", 8, "bold"), bg=cor_fundo, fg=cor_texto, state="normal")
+            b3.config(command=lambda b=b3: alternar_assento(b))
+            b3.grid(row=f_idx3 + 1, column=c_idx3, padx=4, pady=4)
+
+def buscar_assentos_ocupados_sala1():
+    status_assentos1 = {}
+    
+    try:
+        conex = psycopg.connect(**DB_CONFIG)
+        cur = conex.cursor()
+        cur.execute("SELECT fila, numero_cadeira, ocupado FROM assentos_sala1;")
+        linhas = cur.fetchall()
+        for fila, numero, ocupado in linhas:
+            chave = f"{fila}{numero}"
+            status_assentos1[chave] = ocupado
+            
+    except Exception as e:
+        print(f"Perdão! Erro ao consultar a database: {e}")
+    finally:
+        cur.close()
+        conex.close()
+    return status_assentos1
+
+def buscar_assentos_ocupados_sala2():
+    status_assentos2 = {}
+    try:
+        conex = psycopg.connect(**DB_CONFIG)
+        cur = conex.cursor()
+        cur.execute("SELECT fila, numero_cadeira, ocupado FROM assentos_sala2;")
+        linhas = cur.fetchall()
+        for fila, numero, ocupado in linhas:
+            chave = f"{fila}{numero}"
+            status_assentos2[chave] = ocupado
+    except Exception as e:
+        print(f"Perdão! Erro ao consultar a database: {e}")
+    finally:
+        cur.close()
+        conex.close()
+    return status_assentos2
+
+def buscar_assentos_ocupados_sala3():
+    status_assentos3 = {}
+    try:
+        conex = psycopg.connect(**DB_CONFIG)
+        cur = conex.cursor()
+        cur.execute("SELECT fila, numero_cadeira, ocupado FROM assentos_sala3;")
+        linhas = cur.fetchall()
+        for fila, numero, ocupado in linhas:
+            chave = f"{fila}{numero}"
+            status_assentos3[chave] = ocupado
+    except Exception as e:
+        print(f"Perdão! Erro ao consultar a database: {e}")
+    finally:
+        cur.close()
+        conex.close()
+    return status_assentos3
+
+def alternar_assento(btn):
+    global nome
+    assento_texto = btn['text']
+    if btn['bg'] != '#2980b9':
+        btn.orig_cor = btn['bg']  
+        btn.config(bg='#2980b9', fg="white")
+        if assento_texto not in nome:
+            nome.append(assento_texto)
+    else:
+        cor_retorno = getattr(btn, 'orig_cor', '#2FA572')
+        btn.config(bg=cor_retorno, fg="white")
+        if assento_texto in nome:
+            nome.remove(assento_texto)
+
+def reservar1():
+    if not nome:
+        messagebox.showwarning("Aviso", "Nenhum assento selecionado!")
+        return
+    
+    assentos_para_reservar = [(assento[0], int(assento[1:])) for assento in nome]
+    
+    messagebox.showinfo("Reserva concluída!", f"Os seguintes assentos foram reservados na sala 1: \n{nome}")
+    
+    try:
+        with psycopg.connect(**DB_CONFIG) as conex:
+            with conex.cursor() as cur:
+                query = "UPDATE assentos_sala1 SET ocupado = true WHERE fila = %s AND numero_cadeira = %s;"
+                for fila, coluna in assentos_para_reservar:
+                    cur.execute(query, (fila, coluna))
+                conex.commit()
+        nome.clear() 
+        irsala1()    
+    except Exception as error:
+        print(f"Perdão! Erro ao reservar assentos na database: {error}")
+
+def reservar2():
+    if not nome:
+        messagebox.showwarning("Aviso", "Nenhum assento selecionado!")
+        return
+    
+    assentos_para_reservar = [(assento[0], int(assento[1:])) for assento in nome]
+    messagebox.showinfo("Reserva concluída!", f"Os seguintes assentos foram reservados na sala 2: \n{nome}")
+    
+    try:
+        with psycopg.connect(**DB_CONFIG) as conex:
+            with conex.cursor() as cur:
+                query = "UPDATE assentos_sala2 SET ocupado = true WHERE fila = %s AND numero_cadeira = %s;"
+                for fila, coluna in assentos_para_reservar:
+                    cur.execute(query, (fila, coluna))
+                conex.commit()
+        nome.clear()
+        irsala2() 
+    except Exception as error:
+        print(f"Perdão! Erro ao reservar assentos na database: {error}")
+
+def reservar3():
+    if not nome:
+        messagebox.showwarning("Aviso", "Nenhum assento selecionado!")
+        return
+    
+    assentos_para_reservar = [(assento[0], int(assento[1:])) for assento in nome]
+    messagebox.showinfo("Reserva concluída!", f"Os seguintes assentos foram reservados na sala 3: \n{nome}")
+    
+    try:
+        with psycopg.connect(**DB_CONFIG) as conex:
+            with conex.cursor() as cur:
+                query = "UPDATE assentos_sala3 SET ocupado = true WHERE fila = %s AND numero_cadeira = %s;"
+                for fila, coluna in assentos_para_reservar:
+                    cur.execute(query, (fila, coluna))
+                conex.commit()
+        nome.clear()
+        irsala3() 
+    except Exception as error:
+        print(f"Perdão! Erro ao reservar assentos na database: {error}")
+
+def cancelar1():
+    if not nome:
+        messagebox.showwarning("Aviso", "Nenhum assento selecionado para cancelar!")
+        return
+        
+    assentos_para_cancelar = [(assento[0], int(assento[1:])) for assento in nome]
+    messagebox.showinfo("Cancelamento concluído!", f"Os seguintes assentos foram cancelados na sala 1: \n{nome}")
+    
+    try:
+        with psycopg.connect(**DB_CONFIG) as conex:
+            with conex.cursor() as cur:
+                query = "UPDATE assentos_sala1 SET ocupado = false WHERE fila = %s AND numero_cadeira = %s;"
+                for fila, coluna in assentos_para_cancelar:
+                    cur.execute(query, (fila, coluna))
+                conex.commit()
+                
+        nome.clear()
+        irsala1() 
+        
+    except Exception as errorC:
+        print(f"Perdão! Erro ao cancelar assentos na database: {errorC}")
+
+def cancelar2():
+    if not nome:
+        messagebox.showwarning("Aviso", "Nenhum assento selecionado para cancelar!")
+        return
+        
+    assentos_para_cancelar = [(assento[0], int(assento[1:])) for assento in nome]
+    messagebox.showinfo("Cancelamento concluído!", f"Os seguintes assentos foram cancelados na sala 2: \n{nome}")
+    
+    try:
+        with psycopg.connect(**DB_CONFIG) as conex:
+            with conex.cursor() as cur:
+                query = "UPDATE assentos_sala2 SET ocupado = false WHERE fila = %s AND numero_cadeira = %s;"
+                for fila, coluna in assentos_para_cancelar:
+                    cur.execute(query, (fila, coluna))
+                conex.commit()
+                
+        nome.clear()
+        irsala2()
+        
+    except Exception as errorC:
+        print(f"Perdão! Erro ao cancelar assentos na database: {errorC}")
+
+def cancelar3():
+    if not nome:
+        messagebox.showwarning("Aviso", "Nenhum assento selecionado para cancelar!")
+        return
+        
+    assentos_para_cancelar = [(assento[0], int(assento[1:])) for assento in nome]
+    messagebox.showinfo("Cancelamento concluído!", f"Os seguintes assentos foram cancelados na sala 3: \n{nome}")
+    
+    try:
+        with psycopg.connect(**DB_CONFIG) as conex:
+            with conex.cursor() as cur:
+                query = "UPDATE assentos_sala3 SET ocupado = false WHERE fila = %s AND numero_cadeira = %s;"
+                for fila, coluna in assentos_para_cancelar:
+                    cur.execute(query, (fila, coluna))
+                conex.commit()
+                
+        nome.clear()
+        irsala3()
+        
+    except Exception as errorC:
+        print(f"Perdão! Erro ao cancelar assentos na database: {errorC}")
 def sumirtudo():
     frame_menu.pack_forget()
+    
     frame_sala1.pack_forget()
     frame_sala2.pack_forget()
     frame_sala3.pack_forget()
@@ -16,44 +309,52 @@ def irmenu():
 
 def irsala1():
     sumirtudo()
+    global assentos_no_banco1
+    criar_botoes_sala1()
     frame_sala1.pack(fill="both", expand=True)
 
 def irsala2():
     sumirtudo()
+    global assentos_no_banco2
+    criar_botoes_sala2()
     frame_sala2.pack(fill="both", expand=True)
 
 def irsala3():
     sumirtudo()
+    global assentos_no_banco3
+    criar_botoes_sala3()
     frame_sala3.pack(fill="both", expand=True)
 
-############################ AREA 3 - ALGORITMO
+        
 FILEIRAS = 10
 COLUNAS = 20
 
 app = tk.Tk()
 app.title("Gerenciador de Cinema")
 app.geometry("1000x600")
-### MENU
+
+assentos_no_banco1 = buscar_assentos_ocupados_sala1()
+assentos_no_banco2 = buscar_assentos_ocupados_sala2()
+assentos_no_banco3 = buscar_assentos_ocupados_sala3()
+
 frame_menu = tk.Frame(app)
 frame_menu.pack(fill="both", expand=True)
 
-titulo_menu = tk.Label(frame_menu, text="Gerenciador de Cinema", font=("Monocraft", 14), fg="#FF0000")
+titulo_menu = tk.Label(frame_menu, text="Gerenciador de Cinema", font=("Comic Sans MS", 14), fg="#FF0000")
 titulo_menu.place(x=395, y=30)
 
-botao1menu = tk.Button(frame_menu, text="Ir para a sala 1", bg="#0CB63F", fg="#FFFFFF", command=irsala1)
+botao1menu = tk.Button(frame_menu, text="Ir para a sala 1", bg="#0CB6A8", fg="#FFFFFF", command=irsala1)
 botao1menu.place(x=500, y=100)
 
-botao2menu = tk.Button(frame_menu, text="Ir para a sala 2", bg="#0CB63F", fg="#FFFFFF", command=irsala2)
+botao2menu = tk.Button(frame_menu, text="Ir para a sala 2", bg="#0CB6A8", fg="#FFFFFF", command=irsala2)
 botao2menu.place(x=500, y=130)
 
-botao3menu = tk.Button(frame_menu, text="Ir para a sala 3", bg="#0CB63F", fg="#FFFFFF", command=irsala3)
+botao3menu = tk.Button(frame_menu, text="Ir para a sala 3", bg="#0CB6A8", fg="#FFFFFF", command=irsala3)
 botao3menu.place(x=500, y=160)
-
-### SALA 1
 
 frame_sala1 = tk.Frame(app)
 
-titulo_sala1 = tk.Label(frame_sala1, text="Filme Atual - Minecraft", font=("Monocraft", 14))
+titulo_sala1 = tk.Label(frame_sala1, text="Filme Atual - Minecraft", font=("Comic Sans MS", 14))
 titulo_sala1.place(x=395, y=30)
 
 caminhoimagem = "imagens/MINECRAFT.jpg"
@@ -63,52 +364,22 @@ imagemtk = ImageTk.PhotoImage(imagemretamanhada)
 imagem = tk.Label(frame_sala1, image=imagemtk)
 imagem.place(x=450, y=60)
 
-frame_assentos = tk.Frame(frame_sala1) #Aqui, crio um FRAME com fundo transparente
-frame_assentos.place(x = 140, y = 190)   # Aqui, mando inserir o FRAME na tela.
+frame_assentos = tk.Frame(frame_sala1)
+frame_assentos.place(x = 140, y = 190)
 
-for x in range(FILEIRAS):   # De acordo com o Excelentíssimo, Magnífico, Onisciente, Onipresente, Onipotente, Invicto, Imbatível, Indestrutível, Supremo Patriarca das Artes Marciais Místicas, Imperador Absoluto do Multiverso Conhecido, Comendador Cósmico das Forças Ocultas da Sabedoria Absoluta, Guardião dos Segredos do Tempo, Patriarca da Alquimia Mental, Protetor Supremo dos Prazos Fatais e Arquiteto de Realidades Paralelas, Mestre Sensei Doutor Roger, aqui é a parte mais difícil do código, mas isso
-    letra = chr(65 + x)     # não o abala, pois sua imensa sabedoria lhe permite coisas impossíveis e inesperadas.
-                            # Cada letra possui um número em uma codificação chamada ASCII, o número 65 corresponde a letra A
-                            # Então, 65 + 1 seria B, 65 + 2 seria C, etc. Dessa forma, o loop vai adicionando X a 65, X sendo 
-                            # O número de repetições do Loop, indo de 65 + 1, + 2, + 3, etc. E cada fila vai ganhar um número,
-                            # da primeira até a última, em ordem.
-    
-    for y in range(1, COLUNAS + 1):
-        codigo = f"{letra}{y}"  # Aqui, montamos o código de cada cadeira. A lógica é a mesma, vou executar esse segundo for por
-                                # Completo e a letra vai ser a mesma, pois ela é definida na fila. Cada fila vai ter Y colunas, 
-                                # Mas a coluna é um número mesmo, para não começar em zero, adicionemos 1 a variável constante COLUNAS.
+filas = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
+colunas = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
 
-        btn = tk.Button(    # Aqui se cria um botão a cada assento criado.
-            frame_assentos,
-            text=codigo,
-            bg='#2FA572',     # Verde
-            fg='#FFFFFF'
-        )
-        def alternar_cor(b=btn):
-                    # Alterna o estado de seleção guardado no botão
-                    b.selecionado = not getattr(b, "selecionado", False)
-                    
-                    if b.selecionado:
-                        b.config(bg="#E41515") # Vermelho quando selecionado
-                    else:
-                        b.config(bg="#2FA572")
-        btn.config(command=alternar_cor)
-        btn.grid(row=x, column=y - 1, padx=4, pady=4)   # Esse comando cria uma grade (GRID), e distribui cada elemento na posição
-                                                        # X e Y, que vão fazer o loop.
 botao1sala1 = tk.Button(frame_sala1, text="Voltar ao menu", bg="#10D0E9", fg="#FFFFFF", command=irmenu)
 botao1sala1.place(x=600, y=130)
-botaocancelar1 = tk.Button(frame_sala1, text="Cancelar", bg="#E41515", fg="#FFFFFF")
+botaocancelar1 = tk.Button(frame_sala1, text="Cancelar", bg="#E41515", fg="#FFFFFF", command=cancelar1)
 botaocancelar1.place(x=600, y=100)
-botaoreservar1 = tk.Button(frame_sala1, text="Reservar", bg="#2A9733", fg="#FFFFFF")
+botaoreservar1 = tk.Button(frame_sala1, text="Reservar", bg="#2A9733", fg="#FFFFFF", command=reservar1)
 botaoreservar1.place(x=600, y=70)
-
-
-
-### SALA 2
 
 frame_sala2 = tk.Frame(app)
 
-titulo_sala2 = tk.Label(frame_sala2, text="Filme Atual - Minecraft (Dos Criadores de IASIP)", font=("Monocraft", 14))
+titulo_sala2 = tk.Label(frame_sala2, text="Filme Atual - Minecraft (Dos Criadores de IASIP)", font=("Comic Sans MS", 14))
 titulo_sala2.place(x=305, y=30)
 
 caminhoimagem2 = "imagens/minecraftfiladelfia.jpg"
@@ -118,50 +389,40 @@ imagemtk2 = ImageTk.PhotoImage(imagemretamanhada2)
 imagem2 = tk.Label(frame_sala2, image=imagemtk2)
 imagem2.place(x=450, y=60)
 
-frame_assentos2 = tk.Frame(frame_sala2) #Aqui, crio um FRAME com fundo transparente
-frame_assentos2.place(x = 140, y = 190)   # Aqui, mando inserir o FRAME na tela.
+frame_assentos2 = tk.Frame(frame_sala2)
+frame_assentos2.place(x = 140, y = 190)
 
-for x in range(FILEIRAS):   # De acordo com o Excelentíssimo, Magnífico, Onisciente, Onipresente, Onipotente, Invicto, Imbatível, Indestrutível, Supremo Patriarca das Artes Marciais Místicas, Imperador Absoluto do Multiverso Conhecido, Comendador Cósmico das Forças Ocultas da Sabedoria Absoluta, Guardião dos Segredos do Tempo, Patriarca da Alquimia Mental, Protetor Supremo dos Prazos Fatais e Arquiteto de Realidades Paralelas, Mestre Sensei Doutor Roger, aqui é a parte mais difícil do código, mas isso
-    letra = chr(65 + x)     # não o abala, pois sua imensa sabedoria lhe permite coisas impossíveis e inesperadas.
-                            # Cada letra possui um número em uma codificação chamada ASCII, o número 65 corresponde a letra A
-                            # Então, 65 + 1 seria B, 65 + 2 seria C, etc. Dessa forma, o loop vai adicionando X a 65, X sendo 
-                            # O número de repetições do Loop, indo de 65 + 1, + 2, + 3, etc. E cada fila vai ganhar um número,
-                            # da primeira até a última, em ordem.
-    
-    for y in range(1, COLUNAS + 1):
-        codigo = f"{letra}{y}"  # Aqui, montamos o código de cada cadeira. A lógica é a mesma, vou executar esse segundo for por
-                                # Completo e a letra vai ser a mesma, pois ela é definida na fila. Cada fila vai ter Y colunas, 
-                                # Mas a coluna é um número mesmo, para não começar em zero, adicionemos 1 a variável constante COLUNAS.
+filas2 = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
+colunas2 = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
 
-        btn = tk.Button(    # Aqui se cria um botão a cada assento criado.
-            frame_assentos2,
-            text=codigo,
-            bg='#2FA572',     # Verde
-            fg='#FFFFFF'
-        )
-        def alternar_cor(b=btn):
-                    # Alterna o estado de seleção guardado no botão
-                    b.selecionado = not getattr(b, "selecionado", False)
-                    
-                    if b.selecionado:
-                        b.config(bg="#E41515") # Vermelho quando selecionado
-                    else:
-                        b.config(bg="#2FA572")
-        btn.config(command=alternar_cor)
-        btn.grid(row=x, column=y - 1, padx=4, pady=4)   # Esse comando cria uma grade (GRID), e distribui cada elemento na posição
-                                                        # X e Y, que vão fazer o loop.
+for f_idx2 in range(len(filas2)):
+    fila2 = filas2[f_idx2]
+    for c_idx2 in range(len(colunas2)):
+        coluna2 = colunas2[c_idx2]
+        nome_assento2 = f"{fila2}{coluna2}"
+        esta_ocupado2 = assentos_no_banco2.get(nome_assento2)
+        
+        if esta_ocupado2:
+            cor_fundo = '#FF0000'  
+        else:
+            cor_fundo = '#2FA572' 
+            
+        cor_texto = '#FFFFFF'
+        
+        b2 = tk.Button(frame_assentos2, text=nome_assento2, font=("Arial", 8, "bold"), bg=cor_fundo, fg=cor_texto, state="normal")
+        b2.config(command=lambda a=b2: alternar_assento(a))
+        b2.grid(row=f_idx2 + 1, column=c_idx2, padx=4, pady=4)
+
 botao1sala2 = tk.Button(frame_sala2, text="Voltar ao menu", bg="#10D0E9", fg="#FFFFFF", command=irmenu)
 botao1sala2.place(x=600, y=130)
-botaocancelar2 = tk.Button(frame_sala2, text="Cancelar", bg="#E41515", fg="#FFFFFF")
+botaocancelar2 = tk.Button(frame_sala2, text="Cancelar", bg="#E41515", fg="#FFFFFF", command=cancelar2)
 botaocancelar2.place(x=600, y=100)
-botaoreservar2 = tk.Button(frame_sala2, text="Reservar", bg="#2A9733", fg="#FFFFFF")
+botaoreservar2 = tk.Button(frame_sala2, text="Reservar", bg="#2A9733", fg="#FFFFFF", command=reservar2)
 botaoreservar2.place(x=600, y=70)
-
-### SALA 3
 
 frame_sala3 = tk.Frame(app)
 
-titulo_sala3 = tk.Label(frame_sala3, text="Filme Atual - Authentic o Filme", font=("Monocraft", 14))
+titulo_sala3 = tk.Label(frame_sala3, text="Filme Atual - Authentic o Filme", font=("Comic Sans MS", 14))
 titulo_sala3.place(x=305, y=30)
 
 caminhoimagem3 = "imagens/authentic.jpg"
@@ -171,42 +432,35 @@ imagemtk3 = ImageTk.PhotoImage(imagemretamanhada3)
 imagem3 = tk.Label(frame_sala3, image=imagemtk3)
 imagem3.place(x=450, y=60)
 
-frame_assentos3 = tk.Frame(frame_sala3) #Aqui, crio um FRAME com fundo transparente
-frame_assentos3.place(x = 140, y = 190)   # Aqui, mando inserir o FRAME na tela.
+frame_assentos3 = tk.Frame(frame_sala3)
+frame_assentos3.place(x = 140, y = 190)
 
-for x in range(FILEIRAS):   # De acordo com o Excelentíssimo, Magnífico, Onisciente, Onipresente, Onipotente, Invicto, Imbatível, Indestrutível, Supremo Patriarca das Artes Marciais Místicas, Imperador Absoluto do Multiverso Conhecido, Comendador Cósmico das Forças Ocultas da Sabedoria Absoluta, Guardião dos Segredos do Tempo, Patriarca da Alquimia Mental, Protetor Supremo dos Prazos Fatais e Arquiteto de Realidades Paralelas, Mestre Sensei Doutor Roger, aqui é a parte mais difícil do código, mas isso
-    letra = chr(65 + x)     # não o abala, pois sua imensa sabedoria lhe permite coisas impossíveis e inesperadas.
-                            # Cada letra possui um número em uma codificação chamada ASCII, o número 65 corresponde a letra A
-                            # Então, 65 + 1 seria B, 65 + 2 seria C, etc. Dessa forma, o loop vai adicionando X a 65, X sendo 
-                            # O número de repetições do Loop, indo de 65 + 1, + 2, + 3, etc. E cada fila vai ganhar um número,
-                            # da primeira até a última, em ordem.
-    
-    for y in range(1, COLUNAS + 1):
-        codigo = f"{letra}{y}"  # Aqui, montamos o código de cada cadeira. A lógica é a mesma, vou executar esse segundo for por
-                                # Completo e a letra vai ser a mesma, pois ela é definida na fila. Cada fila vai ter Y colunas, 
-                                # Mas a coluna é um número mesmo, para não começar em zero, adicionemos 1 a variável constante COLUNAS.
+filas3 = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
+colunas3 = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
 
-        btn = tk.Button(    # Aqui se cria um botão a cada assento criado.
-            frame_assentos3,
-            text=codigo,
-            bg='#2FA572',     # Verde
-            fg='#FFFFFF'
-        )
-        def alternar_cor(b=btn):
-            # Alterna o estado de seleção guardado no botão
-            b.selecionado = not getattr(b, "selecionado", False)
+for f_idx3 in range(len(filas3)):
+    fila3 = filas3[f_idx3]
+    for c_idx3 in range(len(colunas3)):
+        coluna3 = colunas3[c_idx3]
+        nome_assento3 = f"{fila3}{coluna3}"
+        esta_ocupado3 = assentos_no_banco3.get(nome_assento3)
+        
+        if esta_ocupado3:
+            cor_fundo = '#FF0000'  
+        else:
+            cor_fundo = '#2FA572'  
             
-            if b.selecionado:
-                b.config(bg="#E41515") # Vermelho quando selecionado
-            else:
-                b.config(bg="#2FA572")
-        btn.config(command=alternar_cor)
-        btn.grid(row=x, column=y - 1, padx=4, pady=4)   # Esse comando cria uma grade (GRID), e distribui cada elemento na posição
-                                                        # X e Y, que vão fazer o loop.
+        cor_texto = '#FFFFFF'
+        
+        b3 = tk.Button(frame_assentos3, text=nome_assento3, font=("Arial", 8, "bold"), bg=cor_fundo, fg=cor_texto, state="normal")
+        b3.config(command=lambda c=b3: alternar_assento(c))
+        b3.grid(row=f_idx3 + 1, column=c_idx3, padx=4, pady=4)
+
 botao1sala3 = tk.Button(frame_sala3, text="Voltar ao menu", bg="#10D0E9", fg="#FFFFFF", command=irmenu)
 botao1sala3.place(x=600, y=130)
-botaocancelar3 = tk.Button(frame_sala3, text="Cancelar", bg="#E41515", fg="#FFFFFF")
+botaocancelar3 = tk.Button(frame_sala3, text="Cancelar", bg="#E41515", fg="#FFFFFF", command=cancelar3)
 botaocancelar3.place(x=600, y=100)
-botaoreservar3 = tk.Button(frame_sala3, text="Reservar", bg="#2A9733", fg="#FFFFFF")
+botaoreservar3 = tk.Button(frame_sala3, text="Reservar", bg="#2A9733", fg="#FFFFFF", command=reservar3)
 botaoreservar3.place(x=600, y=70)
+
 app.mainloop()
